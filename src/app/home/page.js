@@ -1,9 +1,20 @@
 // src/app/home/page.js
 'use client';
 
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 const Home = () => {
+  const router = useRouter();
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      router.push('/auth');
+    }
+  }, [router]);
+
   return (
     <div className="max-w-4xl mx-auto p-6 bg-gray-800 text-white rounded-lg shadow-lg">
       <h1 className="text-3xl font-semibold text-center mb-6">Welcome to Car Rental Management System</h1>

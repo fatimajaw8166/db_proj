@@ -6,8 +6,10 @@ export async function POST(request) {
   try {
     const { email, password } = await request.json();
 
+    // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // Insert the user into the database
     await pool.query('INSERT INTO Users (email, password) VALUES (?, ?)', [email, hashedPassword]);
 
     return new Response(JSON.stringify({ message: 'User registered successfully' }), {
