@@ -27,6 +27,9 @@ const Navbar = () => {
               <Link href="/cars" legacyBehavior>
                 <a className="text-gray-300 hover:text-white">Manage Cars</a>
               </Link>
+              <Link href="/branches" legacyBehavior>
+                <a className="text-gray-300 hover:text-white">Manage Branches</a>
+              </Link>
               <span className="text-gray-300">{userEmail}</span>
               <button
                 onClick={handleLogout}

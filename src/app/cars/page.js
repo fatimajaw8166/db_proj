@@ -2,6 +2,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 
 const Cars = () => {
   const [globalData, setGlobalData] = useState({});
@@ -234,13 +235,18 @@ const Cars = () => {
               <td className="px-6 py-4">{car.LicensePlate}</td>
               <td className="px-6 py-4">{car.Status}</td>
               <td className="px-6 py-4">{getBranchName(car.BranchID)}</td>
-              <td className="px-6 py-4">
+              <td className="px-6 py-4 flex space-x-2">
                 <button
                   onClick={() => handleEdit(car)}
                   className="bg-yellow-500 text-white px-4 py-2 rounded-lg shadow hover:bg-yellow-600 transition duration-300"
                 >
                   Edit
                 </button>
+                <Link href={`/cars/${car.CarID}`} legacyBehavior>
+                  <a className="bg-blue-500 text-white px-4 py-2 rounded-lg shadow hover:bg-blue-600 transition duration-300">
+                    View Details
+                  </a>
+                </Link>
               </td>
             </tr>
           ))}
