@@ -18,11 +18,11 @@ export async function GET(request) {
   }
 }
 
-// Handle POST request (insert new branch)
+// Handle POST/PUT request (insert or update branch)
 export async function POST(request) {
   try {
     // Parse the incoming JSON request body
-    const { BranchName, Address, Phone } = await request.json();
+    const { BranchID, BranchName, Address, Phone } = await request.json();
 
     // Validate incoming data
     if (!BranchName || !Address || !Phone) {
@@ -35,24 +35,37 @@ export async function POST(request) {
       );
     }
 
-    // Insert new branch into the Branch table
-    const result = await pool.query(
-      'INSERT INTO Branch (BranchName, Address, Phone) VALUES (?, ?, ?)',
-      [BranchName, Address, Phone]
-    );
-
-    // Return success response
-    return new Response(
-      JSON.stringify({ message: 'Branch added successfully', BranchID: result.insertId }),
-      {
-        status: 201,
-        headers: { 'Content-Type': 'application/json' },
-      }
-    );
+    if (BranchID) {
+      // Update existing branch
+      await pool.query(
+        'UPDATE Branch SET BranchName = ?, Address = ?, Phone = ? WHERE BranchID = ?',
+        [BranchName, Address, Phone, BranchID]
+      );
+      return new Response(
+        JSON.stringify({ message: 'Branch updated successfully' }),
+        {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
+    } else {
+      // Insert new branch
+      const result = await pool.query(
+        'INSERT INTO Branch (BranchName, Address, Phone) VALUES (?, ?, ?)',
+        [BranchName, Address, Phone]
+      );
+      return new Response(
+        JSON.stringify({ message: 'Branch added successfully', BranchID: result.insertId }),
+        {
+          status: 201,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
+    }
   } catch (error) {
-    console.error('Error inserting Branch:', error);
+    console.error('Error handling Branch:', error);
     return new Response(
-      JSON.stringify({ error: 'Failed to insert Branch' }),
+      JSON.stringify({ error: 'Failed to handle Branch' }),
       {
         status: 500,
         headers: { 'Content-Type': 'application/json' },
