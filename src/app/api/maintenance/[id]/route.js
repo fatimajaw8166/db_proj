@@ -28,3 +28,20 @@ export async function GET(request, { params }) {
     });
   }
 }
+
+export async function PUT(request, { params }) {
+  const carId = params.id;
+  try {
+    await pool.query('UPDATE Car SET Status = "Available" WHERE CarID = ?', [carId]);
+    return new Response(JSON.stringify({ message: 'Car status updated to available' }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  } catch (error) {
+    console.error('Error updating car status:', error);
+    return new Response(JSON.stringify({ error: 'Failed to update car status' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+}

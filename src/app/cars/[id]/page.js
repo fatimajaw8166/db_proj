@@ -8,7 +8,7 @@ import { useParams } from 'next/navigation';
 const CarDetails = () => {
   const [car, setCar] = useState(null);
   const [feedback, setFeedback] = useState([]);
-  const [globalData, setGlobalData] = useState({ carModels: [], branches: [], customers: [], employees: [] });
+  const [globalData, setGlobalData] = useState({ carModels: [], branches: [], customers: [], employees: [], rentals: [] });
   const [rentalDetails, setRentalDetails] = useState({
     customerId: '',
     employeeId: '',
@@ -301,11 +301,11 @@ const CarDetails = () => {
         <>
           <h2 className="text-2xl font-semibold mb-4">Rental Details</h2>
           <div className="mb-4">
-            <p className="text-gray-200">Customer: {getCustomerName(rentalDetails.customerId)}</p>
-            <p className="text-gray-200">Employee: {getEmployeeName(rentalDetails.employeeId)}</p>
-            <p className="text-gray-200">Rental Date: {rentalDetails.rentalDate}</p>
-            <p className="text-gray-200">Return Date: {rentalDetails.returnDate}</p>
-            <p className="text-gray-200">Total Amount: {rentalDetails.totalAmount}</p>
+            <p className="text-gray-200">Customer: {getCustomerName(rentalDetails.CustomerID)}</p>
+            <p className="text-gray-200">Employee: {getEmployeeName(rentalDetails.EmployeeID)}</p>
+            <p className="text-gray-200">Rental Date: {rentalDetails.RentalDate}</p>
+            <p className="text-gray-200">Return Date: {rentalDetails.ReturnDate}</p>
+            <p className="text-gray-200">Total Amount: {rentalDetails.TotalAmount}</p>
           </div>
         </>
       )}
@@ -345,13 +345,16 @@ const CarDetails = () => {
         <p>No feedback available for this car.</p>
       )}
 
-      <Modal isOpen={isModalOpen} onClose={handleCloseModal} onSubmit={handleFeedbackSubmit} />
+      <Modal isOpen={isModalOpen} onClose={handleCloseModal} onSubmit={handleFeedbackSubmit} globalData={globalData} carId={id} />
     </div>
   );
 };
 
-const Modal = ({ isOpen, onClose, onSubmit }) => {
+const Modal = ({ isOpen, onClose, onSubmit, globalData, carId }) => {
   const [feedbackDetails, setFeedbackDetails] = useState({
+    customerId: '',
+    rentalId: '',
+    feedbackDate: '',
     comments: '',
     rating: '',
   });
@@ -369,6 +372,11 @@ const Modal = ({ isOpen, onClose, onSubmit }) => {
     onSubmit(feedbackDetails);
   };
 
+  const getCustomerName = (customerID) => {
+    const customer = globalData.customers.find((customer) => customer.CustomerID === customerID);
+    return customer ? `${customer.FirstName} ${customer.LastName}` : 'Unknown Customer';
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -376,6 +384,56 @@ const Modal = ({ isOpen, onClose, onSubmit }) => {
       <div className="bg-gray-800 p-6 rounded-lg shadow-lg w-full max-w-md">
         <h2 className="text-2xl font-semibold text-center mb-4">Add Feedback</h2>
         <form onSubmit={handleSubmit}>
+          <div className="mb-4">
+            <label htmlFor="customerId" className="block text-gray-200 font-medium">Customer</label>
+            <select
+              id="customerId"
+              name="customerId"
+              value={feedbackDetails.customerId}
+              onChange={handleChange}
+              className="w-full p-3 mt-2 bg-gray-600 text-white rounded-lg"
+              required
+            >
+              <option value="">Select Customer</option>
+              {globalData.customers.map((customer) => (
+                <option key={customer.CustomerID} value={customer.CustomerID}>
+                  {customer.FirstName} {customer.LastName}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="mb-4">
+            <label htmlFor="rentalId" className="block text-gray-200 font-medium">Rental</label>
+            <select
+              id="rentalId"
+              name="rentalId"
+              value={feedbackDetails.rentalId}
+              onChange={handleChange}
+              className="w-full p-3 mt-2 bg-gray-600 text-white rounded-lg"
+              required
+            >
+              <option value="">Select Rental</option>
+              {globalData.rentals
+                .filter((rental) => rental.CarID === parseInt(carId))
+                .map((rental) => (
+                  <option key={rental.RentalID} value={rental.RentalID}>
+                    {rental.RentalID} - {getCustomerName(rental.CustomerID)} ({new Date(rental.RentalDate).toLocaleDateString()} to {new Date(rental.ReturnDate).toLocaleDateString()})
+                  </option>
+                ))}
+            </select>
+          </div>
+          <div className="mb-4">
+            <label htmlFor="feedbackDate" className="block text-gray-200 font-medium">Feedback Date</label>
+            <input
+              type="date"
+              id="feedbackDate"
+              name="feedbackDate"
+              value={feedbackDetails.feedbackDate}
+              onChange={handleChange}
+              className="w-full p-3 mt-2 bg-gray-600 text-white rounded-lg"
+              required
+            />
+          </div>
           <div className="mb-4">
             <label htmlFor="comments" className="block text-gray-200 font-medium">Comments</label>
             <textarea
@@ -421,5 +479,4 @@ const Modal = ({ isOpen, onClose, onSubmit }) => {
     </div>
   );
 };
-
 export default CarDetails;

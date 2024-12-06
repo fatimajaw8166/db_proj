@@ -1,22 +1,11 @@
-// src/app/api/rentals/[id]/route.js
+// src/app/api/rent/[id]/route.js
 import pool from '../../../../../lib/db';
 
 export async function GET(request, { params }) {
-  const { id } = params;
-
+  const rentalId = params.id;
   try {
-    const [rows] = await pool.query('SELECT * FROM Rental WHERE CarID = ?', [id]);
-
-    if (rows.length === 0) {
-      return new Response(JSON.stringify({ error: 'Rental details not found' }), {
-        status: 404,
-        headers: { 'Content-Type': 'application/json' },
-      });
-    }
-
-    const rentalDetails = rows[0];
-
-    return new Response(JSON.stringify(rentalDetails), {
+    const [rental] = await pool.query('SELECT * FROM Rental WHERE RentalID = ?', [rentalId]);
+    return new Response(JSON.stringify(rental[0]), {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
     });

@@ -6,6 +6,15 @@ export async function POST(request) {
   try {
     const { email, password } = await request.json();
 
+    // Check if the email already exists
+    const [existingUser] = await pool.query('SELECT * FROM Users WHERE email = ?', [email]);
+    if (existingUser.length > 0) {
+      return new Response(JSON.stringify({ error: 'Email already exists' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
